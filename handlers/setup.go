@@ -4,11 +4,10 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 	"rateme/api"
-	db "rateme/db/sqlc"
 	"rateme/utils"
 )
 
-func SetupHandlers(bot *tgbotapi.BotAPI, queries *db.Queries) {
+func SetupHandlers(bot *tgbotapi.BotAPI) {
 	userConversationHistory := make(map[int64][]api.Message)
 	config, _ := utils.LoadConfig()
 
@@ -31,7 +30,7 @@ func SetupHandlers(bot *tgbotapi.BotAPI, queries *db.Queries) {
 
 			if update.Message.IsCommand() {
 				command = update.Message.Command()
-				handleCommand(bot, update, queries, chatID, userID, command)
+				handleCommand(bot, update, chatID, userID, command)
 			} else {
 				conversationHistory, exists := userConversationHistory[userID]
 				if !exists {

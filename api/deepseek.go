@@ -54,7 +54,6 @@ func CallOpenRouterAPI(prompt string, conversationHistory *[]Message) (string, e
 			},
 		}),
 	}
-
 	// Convert the request struct to JSON
 	jsonData, err := json.Marshal(request)
 	if err != nil {
@@ -65,7 +64,7 @@ func CallOpenRouterAPI(prompt string, conversationHistory *[]Message) (string, e
 	var aiResponse AIResponse
 	var resp *resty.Response
 	retries := 3
-	log.Println(config.DeepSeekAPIKey)
+
 	for i := 0; i < retries; i++ {
 		// Make the POST request with a timeout
 		resp, err = client.R().
@@ -80,10 +79,11 @@ func CallOpenRouterAPI(prompt string, conversationHistory *[]Message) (string, e
 
 		// Log error and retry after a short delay
 		log.Printf("Error calling OpenRouter API (attempt %d/%d): %v\n", i+1, retries, err)
-		time.Sleep(2 * time.Second)
+		time.Sleep(1 * time.Second)
 	}
 
 	if err != nil || resp.StatusCode() != 200 {
+		log.Println(err)
 		return "Sorry, I couldn't get a response right now. Please try again later.", nil
 	}
 
@@ -91,8 +91,10 @@ func CallOpenRouterAPI(prompt string, conversationHistory *[]Message) (string, e
 	if err := json.Unmarshal(resp.Body(), &aiResponse); err != nil {
 		return "", fmt.Errorf("failed to parse API response: %w", err)
 	}
-
+	log.Println(string(jsonData))
+	log.Println(resp.String())
 	if len(aiResponse.Choices) == 0 {
+		log.Println(err)
 		return "Sorry, I couldn't get a response from the assistant. Please try again later.", nil
 	}
 
